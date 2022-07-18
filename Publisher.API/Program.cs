@@ -1,3 +1,8 @@
+using Shared.Commands;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Builder;
+using Publisher.Domain.Commands;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -16,28 +21,22 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
 
-app.MapGet("/weatherforecast", () =>
+app.MapGet("/", () =>
 {
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateTime.Now.AddDays(index),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+    return "";
+});
+
+app.MapPost("/message", ([FromServices] ICommandRouter commandRouter,
+                         [FromBody] CreateMessageCommand command) =>
+{
+    commandRouter.Send(command);
+});
+
+app.MapDelete("/message/{messageId}", ([FromServices] ICommandRouter commandRouter, 
+                                       Guid messageId) =>
+{
+    commandRouter.Send(new RemoveMessageCommand { MessageId = messageId });
+});
 
 app.Run();
-
-internal record WeatherForecast(DateTime Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

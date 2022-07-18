@@ -1,9 +1,7 @@
 ﻿using Confluent.Kafka;
-using Consumer.Domain.Events;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using Shared.Commands;
 using Shared.Events;
 using System.Text.Json;
 
@@ -12,11 +10,11 @@ namespace Consumer.Infrastructure.ExternalServices.Kafka
     public class KafkaConsumer<T>: IHostedService where T : IDomainEvent
     {
         private readonly IServiceScopeFactory _serviceScopeFactory;
-        private readonly IOptions<KafkaConfig> _options;
+        private readonly IOptions<KafkaSettings> _settings;
 
-        public KafkaConsumer(IOptions<KafkaConfig> options,IServiceScopeFactory serviceScopeFactory)
+        public KafkaConsumer(IOptions<KafkaSettings> settings,IServiceScopeFactory serviceScopeFactory)
         {
-            _options = options;
+            _settings = settings;
             _serviceScopeFactory = serviceScopeFactory;
         }
 
@@ -24,8 +22,8 @@ namespace Consumer.Infrastructure.ExternalServices.Kafka
         {
             var config = new ConsumerConfig
             {
-                GroupId = _options.Value.GroupId,
-                BootstrapServers = _options.Value.BootstrapServer,
+                GroupId = _settings.Value.GroupId,
+                BootstrapServers = _settings.Value.BootstrapServer,
                 AutoOffsetReset = AutoOffsetReset.Earliest
             };
 
@@ -34,7 +32,7 @@ namespace Consumer.Infrastructure.ExternalServices.Kafka
                 using (var consumerBuilder = new ConsumerBuilder
                 <Ignore, string>(config).Build())
                 {
-                    var topic = _options.Value.Topics.FirstOrDefault(x => x.Key == nameof(T)).Value;
+                    var topic = _settings.Value.Topics.FirstOrDefault(x => x.Key == nameof(T)).Value;
 
                     if (string.IsNullOrEmpty(topic)) return Task.CompletedTask;
 
