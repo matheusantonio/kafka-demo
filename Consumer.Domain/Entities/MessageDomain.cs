@@ -12,13 +12,13 @@ namespace Consumer.Domain.Entities
         public int Rating => Upvotes - Downvotes;
         public DateTime CreatedAt { get; set; }
 
-        public MessageDomain(string title, string content, string author, int upvotes, int downvotes, DateTime createdAt)
+        public MessageDomain(string title, string content, string author, DateTime createdAt)
         {
             Title = title;
             Content = content;
             Author = author;
-            Upvotes = upvotes;
-            Downvotes = downvotes;
+            Upvotes = 0;
+            Downvotes = 0;
             CreatedAt = createdAt;
         }
 

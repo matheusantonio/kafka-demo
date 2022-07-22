@@ -1,25 +1,33 @@
-﻿using Consumer.Domain.Events;
+﻿using Consumer.Domain.Entities;
+using Consumer.Domain.Events;
+using Consumer.Domain.Repositories;
 using Shared.Events.Handlers;
-using System;
-using System.Collections.Generic;
-
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Consumer.Domain.Handlers.Events
 {
     public class MessageEventHandler : IEventHandler<MessageCreatedEvent>,
                                        IEventHandler<MessageRemovedEvent>
     {
+        private readonly IMessageRepository _repository;
+
+        public MessageEventHandler(IMessageRepository repository)
+        {
+            _repository = repository;
+        }
+
         public void Handle(MessageRemovedEvent command)
         {
-            throw new NotImplementedException();
+            _repository.Remove(command.MessageId);
+
+            _repository.SaveChanges();
         }
 
         public void Handle(MessageCreatedEvent command)
         {
-            throw new NotImplementedException();
+            var message = new MessageDomain(command.Title, command.Content, command.Author, command.CreatedAt);
+
+            _repository.Create(message);
+            _repository.SaveChanges();
         }
     }
 }

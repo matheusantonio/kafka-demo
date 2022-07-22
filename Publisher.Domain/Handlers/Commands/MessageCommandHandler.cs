@@ -1,20 +1,48 @@
 ﻿using Publisher.Domain.Commands;
+using Publisher.Domain.Entities;
+using Publisher.Domain.Events;
+using Publisher.Domain.Repositories;
 using Shared.Commands;
 using Shared.Commands.Handlers;
+using Shared.ExternalServices.Kafka;
 
 namespace Publisher.Domain.Handlers.Commands
 {
     public class MessageCommandHandler : ICommandHandler<CreateMessageCommand>,
                                          ICommandHandler<RemoveMessageCommand>
     {
-        public ICommandResult Handle(CreateMessageCommand command)
+        private readonly IMessageRepository _repository;
+        private readonly IKafkaProducer _kafkaProducer;
+
+        private static string MESSAGE_CREATED_TOPIC = "messageCreated";
+        private static string MESSAGE_REMOVED_TOPIC = "messageRemoved";
+
+        public MessageCommandHandler(IMessageRepository repository, IKafkaProducer kafkaProducer)
         {
-            throw new NotImplementedException();
+            _repository = repository;
+            _kafkaProducer = kafkaProducer;
         }
 
-        public ICommandResult Handle(RemoveMessageCommand command)
+        public void Handle(CreateMessageCommand command)
         {
-            throw new NotImplementedException();
+            var message = new MessageDomain(command.Title, command.Content, command.Author);
+
+            _repository.Create(message);
+
+            _kafkaProducer.Produce(MESSAGE_CREATED_TOPIC, new MessageCreatedEvent
+            {
+                Title = message.Title,
+                Content = message.Content,
+                Author = message.Author,
+                CreatedAt = message.CreatedAt,
+            });
+        }
+
+        public void Handle(RemoveMessageCommand command)
+        {
+            _repository.Remove(command.MessageId);
+
+            _kafkaProducer.Produce(MESSAGE_REMOVED_TOPIC, command.MessageId);
         }
     }
 }

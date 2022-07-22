@@ -1,4 +1,5 @@
 ﻿using Publisher.Domain.Events;
+using Publisher.Domain.Repositories;
 using Shared.Events.Handlers;
 using System;
 using System.Collections.Generic;
@@ -11,14 +12,29 @@ namespace Publisher.Domain.Handlers.Events
     public class RatingsEventHandler : IEventHandler<MessageUpvotedEvent>,
                                        IEventHandler<MessageDownvotedEvent>
     {
+        private readonly IMessageRepository _repository;
+
+        public RatingsEventHandler(IMessageRepository repository)
+        {
+            _repository = repository;
+        }
+
         public void Handle(MessageUpvotedEvent command)
         {
-            throw new NotImplementedException();
+            var message = _repository.GetById(command.MessageId);
+
+            message.Upvote();
+
+            _repository.SaveChanges();
         }
 
         public void Handle(MessageDownvotedEvent command)
         {
-            throw new NotImplementedException();
+            var message = _repository.GetById(command.MessageId);
+
+            message.Downvote();
+
+            _repository.SaveChanges();
         }
     }
 }
