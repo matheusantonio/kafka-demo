@@ -2,6 +2,6 @@
 {
     public interface IEventRouter
     {
-        void Send<T>(T command) where T : IDomainEvent;
+        Task Send<T>(T command) where T : IDomainEvent;
     }
 }

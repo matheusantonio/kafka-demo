@@ -12,7 +12,7 @@ namespace Consumer.Infrastructure.Routers
             _serviceProvider = provider;
         }
 
-        public void Send<T>(T command) where T : IDomainEvent
+        public async Task Send<T>(T command) where T : IDomainEvent
         {
             var instance = _serviceProvider.GetService(typeof(IEventHandler<T>)) as IEventHandler<T>;
 
@@ -21,7 +21,7 @@ namespace Consumer.Infrastructure.Routers
                 throw new InvalidOperationException("No Event Handler fount to handle this event.");
             }
 
-            instance.Handle(command);
+            await instance.Handle(command);
         }
     }
 }

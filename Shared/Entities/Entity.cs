@@ -1,6 +1,10 @@
 ﻿namespace Shared.Entities
 {
-    public abstract class Entity
+    public interface IEntity
+    {
+        Guid Id { get; }
+    }
+    public abstract class Entity : IEntity
     {
         protected Entity()
         {

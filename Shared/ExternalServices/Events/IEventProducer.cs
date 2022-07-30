@@ -1,6 +1,6 @@
-﻿namespace Shared.ExternalServices.Kafka
+﻿namespace Shared.ExternalServices.Events
 {
-    public interface IKafkaProducer
+    public interface IEventProducer
     {
         Task Produce(string topic, object message);
 

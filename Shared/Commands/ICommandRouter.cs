@@ -2,6 +2,6 @@
 {
     public interface ICommandRouter
     {
-        void Send<T>(T command) where T : ICommand;
+        Task Send<T>(T command) where T : ICommand;
     }
 }

@@ -5,21 +5,26 @@ VisualStudioVersion = 17.2.32519.379
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Consumer", "Consumer", "{93B19CC0-252D-4A89-86FF-441484BCD651}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Consumer.API", "Consumer.API\Consumer.API.csproj", "{4D3036AD-6103-4AF0-8427-851244401B2F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Consumer.API", "Consumer.API\Consumer.API.csproj", "{4D3036AD-6103-4AF0-8427-851244401B2F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Consumer.Domain", "Consumer.Domain\Consumer.Domain.csproj", "{25740DDE-36E8-44E7-9275-819F7E9AB493}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Consumer.Domain", "Consumer.Domain\Consumer.Domain.csproj", "{25740DDE-36E8-44E7-9275-819F7E9AB493}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Consumer.Infrastructure", "Consumer.Infrastructure\Consumer.Infrastructure.csproj", "{51F68269-BDC5-4059-9A68-642EB672EEF9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Consumer.Infrastructure", "Consumer.Infrastructure\Consumer.Infrastructure.csproj", "{51F68269-BDC5-4059-9A68-642EB672EEF9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Shared\Shared.csproj", "{114D8B2E-0408-46B8-BE11-0283CBB08F54}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared", "Shared\Shared.csproj", "{114D8B2E-0408-46B8-BE11-0283CBB08F54}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Publisher", "Publisher", "{54F84ED5-2EBF-4AAF-BDC4-7C554FB6655B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Publisher.API", "Publisher.API\Publisher.API.csproj", "{F9C86A22-0197-47ED-8BCA-2B80F0DE56CD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Publisher.API", "Publisher.API\Publisher.API.csproj", "{F9C86A22-0197-47ED-8BCA-2B80F0DE56CD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Publisher.Domain", "Publisher.Domain\Publisher.Domain.csproj", "{32B82897-D37E-4B2B-9E25-D9841C4798FE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Publisher.Domain", "Publisher.Domain\Publisher.Domain.csproj", "{32B82897-D37E-4B2B-9E25-D9841C4798FE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Publisher.Infrastructure", "Publisher.Infrastructure\Publisher.Infrastructure.csproj", "{37B718C3-E91C-4ECD-9FAB-6FCFFD8C39CD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Publisher.Infrastructure", "Publisher.Infrastructure\Publisher.Infrastructure.csproj", "{37B718C3-E91C-4ECD-9FAB-6FCFFD8C39CD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Itens de Solução", "Itens de Solução", "{2E17361C-E2D6-44A4-A226-5AF84BE2EA29}"
+	ProjectSection(SolutionItems) = preProject
+		docker-compose.yml = docker-compose.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

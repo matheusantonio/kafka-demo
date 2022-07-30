@@ -4,13 +4,14 @@ namespace Consumer.Domain.Repositories
 {
     public interface IMessageRepository
     {
-        MessageDomain GetById(Guid Id);
+        Task<MessageDomain> GetById(Guid Id);
 
-        IEnumerable<MessageDomain> List();
+        Task<IEnumerable<MessageDomain>> List();
 
-        void Create(MessageDomain message);
+        Task Create(MessageDomain message);
 
-        void Remove(Guid id);
-        void SaveChanges();
+        Task Remove(Guid id);
+
+        Task Update(MessageDomain message);
     }
 }

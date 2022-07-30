@@ -15,19 +15,13 @@ namespace Consumer.Domain.Handlers.Events
             _repository = repository;
         }
 
-        public void Handle(MessageRemovedEvent command)
-        {
-            _repository.Remove(command.MessageId);
+        public async Task Handle(MessageRemovedEvent command) =>  await _repository.Remove(command.MessageId);
 
-            _repository.SaveChanges();
-        }
-
-        public void Handle(MessageCreatedEvent command)
+        public async Task Handle(MessageCreatedEvent command)
         {
             var message = new MessageDomain(command.Title, command.Content, command.Author, command.CreatedAt);
 
-            _repository.Create(message);
-            _repository.SaveChanges();
+            await _repository.Create(message);
         }
     }
 }

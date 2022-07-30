@@ -2,12 +2,12 @@
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Shared.ExternalServices.Kafka;
+using Shared.ExternalServices.Events;
 using System.Net;
 
 namespace Consumer.Infrastructure.ExternalServices.Kafka
 {
-    public class KafkaProducer : IKafkaProducer
+    public class KafkaProducer : IEventProducer
     {
         private readonly ProducerConfig _config;
         private readonly IOptions<KafkaSettings> _settings;
@@ -24,7 +24,7 @@ namespace Consumer.Infrastructure.ExternalServices.Kafka
         }
 
         // Implementar criação automática de tópicos para não depender de um topico estar criado
-        Task IKafkaProducer.CreateTopicMaybe(string topic)
+        Task IEventProducer.CreateTopicMaybe(string topic)
         {
             throw new NotImplementedException();
         }

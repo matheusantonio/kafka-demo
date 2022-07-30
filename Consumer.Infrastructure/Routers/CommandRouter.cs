@@ -12,7 +12,7 @@ namespace Consumer.Infrastructure.Routers
             _serviceProvider = provider;
         }
 
-        public void Send<T>(T command) where T : ICommand
+        public async Task Send<T>(T command) where T : ICommand
         {
             var instance = _serviceProvider.GetService(typeof(ICommandHandler<T>)) as ICommandHandler<T>;
 
@@ -21,7 +21,7 @@ namespace Consumer.Infrastructure.Routers
                 throw new InvalidOperationException("No Command Handler fount to handle this command.");
             }
 
-            instance.Handle(command);
+            await instance.Handle(command);
         }
     }
 }

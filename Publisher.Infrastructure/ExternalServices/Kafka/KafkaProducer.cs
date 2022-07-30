@@ -2,12 +2,12 @@
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Shared.ExternalServices.Kafka;
+using Shared.ExternalServices.Events;
 using System.Net;
 
 namespace Publisher.Infrastructure.ExternalServices.Kafka
 {
-    public class KafkaProducer : IKafkaProducer
+    public class KafkaProducer : IEventProducer
     {
         private readonly ProducerConfig _config;
         private readonly IOptions<KafkaSettings> _settings;

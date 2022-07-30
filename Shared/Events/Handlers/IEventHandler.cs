@@ -2,6 +2,6 @@
 {
     public interface IEventHandler<T> where T : IDomainEvent
     {
-        void Handle(T command);
+        Task Handle(T command);
     }
 }

@@ -18,7 +18,7 @@ namespace Publisher.Infrastructure.ExternalServices.Kafka
             _settings = settings;
         }
 
-        public Task StartAsync(CancellationToken cancellationToken)
+        public async Task StartAsync(CancellationToken cancellationToken)
         {
             var config = new ConsumerConfig
             {
@@ -34,7 +34,7 @@ namespace Publisher.Infrastructure.ExternalServices.Kafka
                 {
                     var topic = _settings.Value.Topics.FirstOrDefault(x => x.Key == nameof(T)).Value;
 
-                    if (string.IsNullOrEmpty(topic)) return Task.CompletedTask;
+                    if (string.IsNullOrEmpty(topic)) await Task.CompletedTask;
 
                     consumerBuilder.Subscribe(topic);
                     var cancelToken = new CancellationTokenSource();
@@ -51,7 +51,7 @@ namespace Publisher.Infrastructure.ExternalServices.Kafka
                             using(var scope = _serviceScopeFactory.CreateScope())
                             {
                                 var eventRouter = scope.ServiceProvider.GetService<IEventRouter>();
-                                eventRouter.Send(orderRequest);
+                                await eventRouter.Send(orderRequest);
                             }
                         }
                     }
@@ -66,7 +66,7 @@ namespace Publisher.Infrastructure.ExternalServices.Kafka
                 System.Diagnostics.Debug.WriteLine(ex.Message);
             }
 
-            return Task.CompletedTask;
+            await Task.CompletedTask;
         }
 
         public Task StopAsync(CancellationToken cancellationToken)

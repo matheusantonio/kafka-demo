@@ -19,22 +19,22 @@ namespace Publisher.Domain.Handlers.Events
             _repository = repository;
         }
 
-        public void Handle(MessageUpvotedEvent command)
+        public async Task Handle(MessageUpvotedEvent command)
         {
-            var message = _repository.GetById(command.MessageId);
+            var message = await _repository.GetById(command.MessageId);
 
             message.Upvote();
 
-            _repository.SaveChanges();
+            await _repository.Update(message);
         }
 
-        public void Handle(MessageDownvotedEvent command)
+        public async Task Handle(MessageDownvotedEvent command)
         {
-            var message = _repository.GetById(command.MessageId);
+            var message = await _repository.GetById(command.MessageId);
 
             message.Downvote();
 
-            _repository.SaveChanges();
+            await _repository.Update(message);
         }
     }
 }

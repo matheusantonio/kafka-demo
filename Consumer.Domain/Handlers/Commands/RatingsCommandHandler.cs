@@ -2,7 +2,7 @@
 using Consumer.Domain.Repositories;
 using Shared.Commands;
 using Shared.Commands.Handlers;
-using Shared.ExternalServices.Kafka;
+using Shared.ExternalServices.Events;
 
 namespace Consumer.Domain.Handlers.Commands
 {
@@ -10,37 +10,37 @@ namespace Consumer.Domain.Handlers.Commands
                                          ICommandHandler<DownvoteMessageCommand>
     {
         private readonly IMessageRepository _repository;
-        private readonly IKafkaProducer _kafkaProducer;
+        private readonly IEventProducer _kafkaProducer;
 
         private static string UPVOTE_TOPIC = "messageUpvoted";
         private static string DOWNVOTE_TOPIC = "messageDownvoted";
 
-        public RatingsCommandHandler(IMessageRepository repository, IKafkaProducer kafkaProducer)
+        public RatingsCommandHandler(IMessageRepository repository, IEventProducer kafkaProducer)
         {
             _repository = repository;
             _kafkaProducer = kafkaProducer;
         }
 
-        public void Handle(UpvoteMessageCommand command)
+        public async Task Handle(UpvoteMessageCommand command)
         {
-            var message = _repository.GetById(command.MessageId);
+            var message = await _repository.GetById(command.MessageId);
 
             message.Upvote();
 
-            _repository.SaveChanges();
+            await _repository.Update(message);
 
-            _kafkaProducer.Produce(UPVOTE_TOPIC, command);
+            await _kafkaProducer.Produce(UPVOTE_TOPIC, command);
         }
 
-        public void Handle(DownvoteMessageCommand command)
+        public async Task Handle(DownvoteMessageCommand command)
         {
-            var message = _repository.GetById(command.MessageId);
+            var message = await _repository.GetById(command.MessageId);
 
             message.Downvote();
 
-            _repository.SaveChanges();
+            await _repository.Update(message);
 
-            _kafkaProducer.Produce(DOWNVOTE_TOPIC, command);
+            await _kafkaProducer.Produce(DOWNVOTE_TOPIC, command);
         }
     }
 }

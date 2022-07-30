@@ -2,13 +2,18 @@ using Consumer.Domain.Commands;
 using Consumer.Domain.Events;
 using Consumer.Domain.Handlers.Commands;
 using Consumer.Domain.Handlers.Events;
+using Consumer.Domain.Repositories;
 using Consumer.Infrastructure.ExternalServices.Kafka;
+using Consumer.Infrastructure.Persistence.Core.Mongo;
+using Consumer.Infrastructure.Repositories;
 using Consumer.Infrastructure.Routers;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Driver;
 using Shared.Commands;
 using Shared.Commands.Handlers;
 using Shared.Events;
 using Shared.Events.Handlers;
+using Shared.ExternalServices.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,8 +22,23 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOptions();
 builder.Services.Configure<KafkaSettings>(builder.Configuration.GetSection(KafkaSettings.Kafka));
 
+builder.Services.Configure<MongoSettings>(builder.Configuration.GetSection(nameof(MongoSettings)));
+
+builder.Services.AddScoped<IMongoDatabase>(x =>
+{
+    var mongoSettings = builder.Configuration.GetSection(nameof(MongoSettings));
+    var connectionString = mongoSettings.GetSection("ConnectionString").Value;
+    var databaseName = mongoSettings.GetSection("DatabaseName").Value;
+    var client = new MongoClient(connectionString);
+    return client.GetDatabase(databaseName);
+});
+
 builder.Services.AddScoped<ICommandRouter, CommandRouter>();
 builder.Services.AddScoped<IEventRouter, EventRouter>();
+
+builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+
+builder.Services.AddScoped<IEventProducer, KafkaProducer>();
 
 builder.Services.AddScoped<ICommandHandler<UpvoteMessageCommand>, RatingsCommandHandler>();
 builder.Services.AddScoped<ICommandHandler<DownvoteMessageCommand>, RatingsCommandHandler>();
@@ -50,17 +70,17 @@ app.MapGet("/messages", () =>
     return "";
 });
 
-app.MapPut("/message/{messageId}/upvote", ([FromServices] ICommandRouter commandRouter, Guid messageId) =>
+app.MapPut("/message/{messageId}/upvote", async ([FromServices] ICommandRouter commandRouter, Guid messageId) =>
 {
-    commandRouter.Send(new UpvoteMessageCommand
+    await commandRouter.Send(new UpvoteMessageCommand
     {
         MessageId = messageId
     });
 });
 
-app.MapPut("/message/{messageId}/downvote", ([FromServices] ICommandRouter commandRouter, Guid messageId) =>
+app.MapPut("/message/{messageId}/downvote", async ([FromServices] ICommandRouter commandRouter, Guid messageId) =>
 {
-    commandRouter.Send(new DownvoteMessageCommand
+    await commandRouter.Send(new DownvoteMessageCommand
     {
         MessageId = messageId
     });

@@ -1,6 +1,6 @@
 ﻿namespace Shared.Entities
 {
-    public interface IAggregateRoot
+    public interface IAggregateRoot : IEntity
     {
     }
 }
