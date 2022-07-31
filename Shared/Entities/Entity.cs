@@ -1,4 +1,7 @@
-﻿namespace Shared.Entities
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+
+namespace Shared.Entities
 {
     public interface IEntity
     {
@@ -11,6 +14,11 @@
             Id = Guid.NewGuid();
         }
 
-        public Guid Id { get; }
+        protected Entity(Guid id)
+        {
+            Id = id;
+        }
+
+        public Guid Id { get; set;  }
     }
 }

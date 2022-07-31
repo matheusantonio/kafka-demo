@@ -31,6 +31,7 @@ namespace Publisher.Domain.Handlers.Commands
 
             await _kafkaProducer.Produce(MESSAGE_CREATED_TOPIC, new MessageCreatedEvent
             {
+                MessageId = message.Id,
                 Title = message.Title,
                 Content = message.Content,
                 Author = message.Author,
@@ -42,7 +43,7 @@ namespace Publisher.Domain.Handlers.Commands
         {
             await _repository.Remove(command.MessageId);
 
-            await _kafkaProducer.Produce(MESSAGE_REMOVED_TOPIC, command.MessageId);
+            await _kafkaProducer.Produce(MESSAGE_REMOVED_TOPIC, command);
         }
     }
 }

@@ -12,7 +12,7 @@ namespace Consumer.Domain.Entities
         public int Rating => Upvotes - Downvotes;
         public DateTime CreatedAt { get; set; }
 
-        public MessageDomain(string title, string content, string author, DateTime createdAt)
+        public MessageDomain(Guid id, string title, string content, string author, DateTime createdAt) : base(id)
         {
             Title = title;
             Content = content;

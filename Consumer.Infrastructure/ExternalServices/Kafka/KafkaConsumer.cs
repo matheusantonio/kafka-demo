@@ -7,7 +7,7 @@ using System.Text.Json;
 
 namespace Consumer.Infrastructure.ExternalServices.Kafka
 {
-    public class KafkaConsumer<T>: IHostedService where T : IDomainEvent
+    public class KafkaConsumer<T>: BackgroundService where T : IDomainEvent
     {
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly IOptions<KafkaSettings> _settings;
@@ -18,55 +18,59 @@ namespace Consumer.Infrastructure.ExternalServices.Kafka
             _serviceScopeFactory = serviceScopeFactory;
         }
 
-        public async Task StartAsync(CancellationToken cancellationToken)
+        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            var config = new ConsumerConfig
+            await Task.Run(async () =>
             {
-                GroupId = _settings.Value.GroupId,
-                BootstrapServers = _settings.Value.BootstrapServer,
-                AutoOffsetReset = AutoOffsetReset.Earliest
-            };
-
-            try
-            {
-                using (var consumerBuilder = new ConsumerBuilder
-                <Ignore, string>(config).Build())
+                var config = new ConsumerConfig
                 {
-                    var topic = _settings.Value.Topics.FirstOrDefault(x => x.Key == nameof(T)).Value;
+                    GroupId = _settings.Value.GroupId,
+                    BootstrapServers = _settings.Value.BootstrapServer,
+                    AutoOffsetReset = AutoOffsetReset.Earliest
+                };
 
-                    if (string.IsNullOrEmpty(topic)) await Task.CompletedTask;
-
-                    consumerBuilder.Subscribe(topic);
-                    var cancelToken = new CancellationTokenSource();
-
-                    try
+                try
+                {
+                    using (var consumerBuilder = new ConsumerBuilder
+                    <Ignore, string>(config).Build())
                     {
-                        while (true)
-                        {
-                            var consumer = consumerBuilder.Consume
-                               (cancelToken.Token);
-                            var orderRequest = JsonSerializer.Deserialize<T>(consumer.Message.Value);
+                        var topic = _settings.Value.Topics.FirstOrDefault(x => x.Key == typeof(T).Name).Value;
 
-                            //event handler
-                            using (var scope = _serviceScopeFactory.CreateScope())
+                        if (string.IsNullOrEmpty(topic)) await Task.CompletedTask;
+
+                        consumerBuilder.Subscribe(topic);
+                        var cancelToken = new CancellationTokenSource();
+
+                    
+                            try
                             {
-                                var eventRouter = scope.ServiceProvider.GetService<IEventRouter>();
-                                await eventRouter.Send(orderRequest);
+                                while (true)
+                                {
+                                    var consumer = consumerBuilder.Consume
+                                       (cancelToken.Token);
+                                    var orderRequest = JsonSerializer.Deserialize<T>(consumer.Message.Value);
+
+                                    //event handler
+                                    using (var scope = _serviceScopeFactory.CreateScope())
+                                    {
+                                        var eventRouter = scope.ServiceProvider.GetService<IEventRouter>();
+                                        await eventRouter.Send(orderRequest);
+                                    }
+                                }
                             }
-                        }
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        consumerBuilder.Close();
+                            catch (OperationCanceledException)
+                            {
+                                consumerBuilder.Close();
+                            }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine(ex.Message);
-            }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex.Message);
+                }
 
-            await Task.CompletedTask;
+                await Task.CompletedTask;
+            });
         }
 
         public Task StopAsync(CancellationToken cancellationToken)

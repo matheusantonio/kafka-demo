@@ -1,6 +1,5 @@
 using Shared.Commands;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Builder;
 using Publisher.Domain.Commands;
 using Shared.Events;
 using Shared.Commands.Handlers;
@@ -25,13 +24,29 @@ builder.Services.Configure<KafkaSettings>(builder.Configuration.GetSection(Kafka
 
 builder.Services.Configure<MongoSettings>(builder.Configuration.GetSection(nameof(MongoSettings)));
 
+builder.Services.AddSingleton(x =>
+{
+    var configuration = x.GetService<IConfiguration>();
+    var options = new MongoSettings();
+
+    configuration.GetSection(nameof(MongoSettings)).Bind(options);
+
+    return options;
+});
+
+builder.Services.AddSingleton<IMongoClient>(x =>
+{
+    var mongoSettings = x.GetService<MongoSettings>();
+
+    return new MongoClient(mongoSettings.ConnectionString);
+});
+
 builder.Services.AddScoped<IMongoDatabase>(x =>
 {
-    var mongoSettings = builder.Configuration.GetSection(nameof(MongoSettings));
-    var connectionString = mongoSettings.GetSection("ConnectionString").Value;
-    var databaseName = mongoSettings.GetSection("DatabaseName").Value;
-    var client = new MongoClient(connectionString);
-    return client.GetDatabase(databaseName);
+    var mongoSettings = x.GetService<MongoSettings>();
+    var client = x.GetService<IMongoClient>();
+
+    return client.GetDatabase(mongoSettings.DatabaseName);
 });
 
 builder.Services.AddScoped<ICommandRouter, CommandRouter>();
@@ -65,9 +80,9 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 
-app.MapGet("/", () =>
+app.MapGet("/", async ([FromServices] IMessageRepository repository) =>
 {
-    return "";
+    return await repository.List();
 });
 
 app.MapPost("/message", async ([FromServices] ICommandRouter commandRouter,

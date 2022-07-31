@@ -15,7 +15,7 @@ namespace Consumer.Infrastructure.Persistence.Core.Mongo
 
         public async Task<T> GetById(Guid id)
         {
-            return await _source.Find(x => x.Id == id).FirstAsync();
+            return await _source.Find(x => x.Id == id).FirstOrDefaultAsync();
         }
 
         public async Task Remove(Guid id)

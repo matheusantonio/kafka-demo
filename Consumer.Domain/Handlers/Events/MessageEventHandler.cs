@@ -19,7 +19,7 @@ namespace Consumer.Domain.Handlers.Events
 
         public async Task Handle(MessageCreatedEvent command)
         {
-            var message = new MessageDomain(command.Title, command.Content, command.Author, command.CreatedAt);
+            var message = new MessageDomain(command.MessageId, command.Title, command.Content, command.Author, command.CreatedAt);
 
             await _repository.Create(message);
         }
