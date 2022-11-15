@@ -9,6 +9,11 @@ Demo criada para estudar conceitos básicos de Kafka, mensageria e Event Driven 
 
 A demo está utilizando .NET 6 com Minimal APIs e MongoDB para armazenamento dos dados.
 
+# Como executar
+
+Em um terminal, executar docker-compose up --build para inicializar os contêiners do kafka e do mongo.
+Abrir a solução através do Visual Studio e definir os projetos Consumer.API e Publisher.API como projetos de inicialização. Em seguida, basta executar a solução.
+
 # Disclaimer
 
 Por ser um projeto experimental para aprender kafka, algumas decisões de implementação podem não refletir a melhor forma como alguns itens deveriam ser implementados.
