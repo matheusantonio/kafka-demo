@@ -1,24 +1,23 @@
-﻿using Confluent.Kafka;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using Confluent.Kafka;
+using Consumer.Infrastructure.ExternalServices.Kafka;
 using Microsoft.Extensions.Options;
-using Shared.Events;
 using System.Text.Json;
+using Shared.Events;
 
-namespace Consumer.Infrastructure.ExternalServices.Kafka
+namespace Consumer.Worker
 {
-    public class KafkaConsumer<T>: BackgroundService where T : IDomainEvent
+    public class Worker<T> : BackgroundService where T : IDomainEvent
     {
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly IOptions<KafkaSettings> _settings;
 
-        public KafkaConsumer(IOptions<KafkaSettings> settings,IServiceScopeFactory serviceScopeFactory)
+        public Worker(IOptions<KafkaSettings> settings, IServiceScopeFactory serviceScopeFactory)
         {
             _settings = settings;
             _serviceScopeFactory = serviceScopeFactory;
         }
 
-        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             await Task.Run(async () =>
             {
@@ -41,27 +40,27 @@ namespace Consumer.Infrastructure.ExternalServices.Kafka
                         consumerBuilder.Subscribe(topic);
                         var cancelToken = new CancellationTokenSource();
 
-                    
-                            try
-                            {
-                                while (true)
-                                {
-                                    var consumer = consumerBuilder.Consume
-                                       (cancelToken.Token);
-                                    var orderRequest = JsonSerializer.Deserialize<T>(consumer.Message.Value);
 
-                                    //event handler
-                                    using (var scope = _serviceScopeFactory.CreateScope())
-                                    {
-                                        var eventRouter = scope.ServiceProvider.GetService<IEventRouter>();
-                                        await eventRouter.Send(orderRequest);
-                                    }
+                        try
+                        {
+                            while (true)
+                            {
+                                var consumer = consumerBuilder.Consume
+                                   (cancelToken.Token);
+                                var orderRequest = JsonSerializer.Deserialize<T>(consumer.Message.Value);
+
+                                //event handler
+                                using (var scope = _serviceScopeFactory.CreateScope())
+                                {
+                                    var eventRouter = scope.ServiceProvider.GetService<IEventRouter>();
+                                    await eventRouter.Send(orderRequest);
                                 }
                             }
-                            catch (OperationCanceledException)
-                            {
-                                consumerBuilder.Close();
-                            }
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            consumerBuilder.Close();
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -71,11 +70,6 @@ namespace Consumer.Infrastructure.ExternalServices.Kafka
 
                 await Task.CompletedTask;
             });
-        }
-
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
         }
     }
 }
